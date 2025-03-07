@@ -8,6 +8,7 @@ SRC_URI = " \
     file://vcpe-init.service \
     file://vcpe-init.sh \
     file://vcpe-bash-history-backup.service \
+    file://Blocklist_file.default \
 "
 
 inherit systemd
@@ -35,6 +36,10 @@ do_install() {
 
     # Install systemd service
     install -m 0644 ${WORKDIR}/vcpe-bash-history-backup.service ${D}${systemd_system_unitdir}
+
+    # Install default Blocklist file for CCSP components
+    install -d ${D}/opt/secure
+    install -m 0644 ${WORKDIR}/Blocklist_file.default ${D}/opt/secure/Blocklist_file.txt
 }
 
 FILES:${PN} += " \
@@ -43,4 +48,5 @@ FILES:${PN} += " \
     ${sysconfdir}/systemd/system/multi-user.target.wants/vcpe-init.service \
     ${bindir}/vcpe-init \
     ${systemd_system_unitdir}/vcpe-bash-history-backup.service \
+    /opt/secure/Blocklist_file.txt \
 "
