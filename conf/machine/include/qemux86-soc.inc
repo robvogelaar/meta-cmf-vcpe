@@ -24,7 +24,8 @@ MACHINE_EXTRA_RDEPENDS += "vboxguestdrivers kernel-module-snd-intel8x0 kernel-mo
 
 APPEND_append_qemux86 = " quiet splash"
 
-IMAGE_FSTYPES = "tar.gz wic.vmdk"
+IMAGE_FSTYPES = "tar.gz lxc"
+IMAGE_CLASSES += "image_types_lxc"
 
 # OE 2.4 builds currently use wic to create vmdk images and wic depends on the
 # GPLv3 grub-efi package by default when building for x86. Manually removing
