@@ -1,0 +1,101 @@
+From c7511ac9c745bd1ced00e83526a02f115dcba5e1 Mon Sep 17 00:00:00 2001
+From: Rob Vogelaar <revogelaar@gmail.com>
+Date: Fri, 14 Mar 2025 14:28:20 -0700
+Subject: [PATCH] Add missing functions (as stubs)
+
+Signed-off-by: Rob Vogelaar <revogelaar@gmail.com>
+---
+ source/wifi/wifi_hal.c | 80 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 80 insertions(+)
+
+diff --git a/source/wifi/wifi_hal.c b/source/wifi/wifi_hal.c
+index 0ff501f..b41d463 100644
+--- a/source/wifi/wifi_hal.c
++++ b/source/wifi/wifi_hal.c
+@@ -9735,3 +9735,83 @@ INT wifi_getApAssociatedDevice(INT ap_index, CHAR *output_buf, INT output_buf_si
+     return RETURN_OK;
+ }
+ #endif
++
++INT wifi_getVAPTelemetry(UINT apIndex, wifi_VAPTelemetry_t *telemetry)
++{
++    return RETURN_OK;
++}
++
++INT wifi_getApSecurity(INT ap_index, wifi_vap_security_t *security)
++{
++    return RETURN_OK;
++}
++
++INT wifi_setApSecurity(INT ap_index, wifi_vap_security_t *security)
++{
++    return RETURN_OK;
++}
++
++INT wifi_getAPCapabilities(INT ap_index, wifi_ap_capabilities_t *apCapabilities)
++{
++    return RETURN_OK;
++}
++
++INT wifi_getApWpsConfiguration(INT ap_index, wifi_wps_t* wpsConfig)
++{
++    return RETURN_OK;
++}
++
++INT wifi_setApWpsConfiguration(INT ap_index, wifi_wps_t* wpsConfig)
++{
++    return RETURN_OK;
++}
++
++INT wifi_getLibhostapd(BOOL *output_bool)
++{
++    return RETURN_OK;
++}
++
++INT wifi_updateLibHostApdConfig(int apIndex)
++{
++    return RETURN_OK;
++}
++
++INT wifi_setRadioOperatingParameters(wifi_radio_index_t index, wifi_radio_operationParam_t *operationParam)
++{
++    return RETURN_OK;
++}
++
++INT wifi_getRadioOperatingParameters(wifi_radio_index_t index, wifi_radio_operationParam_t *operationParam)
++{
++    return RETURN_OK;
++}
++
++INT wifi_getScanResults(wifi_radio_index_t index, wifi_channel_t *channel, wifi_bss_info_t **bss, UINT *num_bss)
++{
++    return RETURN_OK;
++}
++
++void wifi_scanResults_callback_register(wifi_scanResults_callback callback_proc)
++{
++}
++
++INT wifi_hal_getRadioTemperature(wifi_radio_index_t radioIndex, wifi_radioTemperature_t *output_struct)
++{
++    return RETURN_OK;
++}
++
++INT wifi_createVAP(wifi_radio_index_t index, wifi_vap_info_map_t *map)
++{
++    return RETURN_OK;
++}
++
++INT wifi_getRadioVapInfoMap(wifi_radio_index_t index, wifi_vap_info_map_t *map)
++{
++    return RETURN_OK;
++}
++
++
++INT wifi_getHalCapability(wifi_hal_capability_t *cap)
++{
++    return RETURN_OK;
++}
+-- 
+2.25.1
+
