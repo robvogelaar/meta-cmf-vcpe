@@ -1,3 +1,7 @@
+FILESEXTRAPATHS:prepend := "${THISDIR}/${BPN}:"
+
+SRC_URI += "file://0001-Add-missing-functions-as-stubs.patch"
+
 do_custom_patches() {
     cd ${S}
     bbnote "Current directory: $(pwd)"
@@ -14,3 +18,5 @@ do_custom_patches() {
         bbnote "Warning: Patch file 0001-Add-missing-functions-as-stubs.patch not found"
     fi
 }
+
+addtask do_custom_patches after do_unpack before do_compile
