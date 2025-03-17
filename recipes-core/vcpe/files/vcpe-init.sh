@@ -7,17 +7,22 @@ HOME=/home/root
 #hostname ${CONTAINER_NAME}
 #hostname vcpe
 
+# mount rdklogs to tmpfs
+mkdir -p /rdklogs
+mount -t tmpfs -o size=128m tmpfs /rdklogs
+
 # required for dibbler
 mkdir /tmp/dibbler
 
-# required to prevent multiple syslog/klog
+# prevent multiple syslog/klog
 sed -i 's|^/usr/sbin/log_start.sh|#/usr/sbin/log_start.sh|' /etc/utopia/utopia_init.sh
 
-# eth0 <- erouter0
+# webpa: eth0 <- erouter0
 sed -i 's|eth0|erouter0|' /lib/rdk/parodus_start.sh
 
-mkdir -p /rdklogs
-mount -t tmpfs -o size=128m tmpfs /rdklogs
+# webpa: server ip
+sed -i 's|54.166.121.187|10.10.10.210|' /lib/rdk/parodus_start.sh
+
 
 
 #logmaxsize=1000000
