@@ -1,0 +1,25 @@
+From e03a1e2a03d6cccf00dad5ebffba3891c147d836 Mon Sep 17 00:00:00 2001
+From: Rob Vogelaar <revogelaar@gmail.com>
+Date: Wed, 19 Mar 2025 11:45:12 -0700
+Subject: [PATCH] add missing pclose()
+
+Signed-off-by: Rob Vogelaar <revogelaar@gmail.com>
+---
+ source/hal-ethsw/ccsp_hal_ethsw.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/source/hal-ethsw/ccsp_hal_ethsw.c b/source/hal-ethsw/ccsp_hal_ethsw.c
+index a3b8378..ef16941 100755
+--- a/source/hal-ethsw/ccsp_hal_ethsw.c
++++ b/source/hal-ethsw/ccsp_hal_ethsw.c
+@@ -529,6 +529,7 @@ CcspHalEthSwGetPortAdminStatus
+     if(!(fp = popen("readlink -f /sys/class/net/eth1", "r")))
+         return RETURN_ERR;
+     fgets(port_id, sizeof(port_id), fp);
++    pclose(fp);
+     if((p=strstr(port_id, val1))){
+         p=strtok(p, "-:");
+         port_num = atoi(p);
+-- 
+2.25.1
+
