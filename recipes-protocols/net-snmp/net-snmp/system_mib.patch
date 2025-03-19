@@ -1,0 +1,15 @@
+--- a/agent/mibgroup/mibII/system_mib.c
++++ b/agent/mibgroup/mibII/system_mib.c
+@@ -258,6 +258,12 @@
+ fgets(b_ver, sizeof b_ver, pb);
+ fgets(s_ver,sizeof s_ver,ps);
+ fgets(m_name,sizeof m_name,pmo);
++pclose(pd);
++pclose(ph);
++pclose(pm);
++pclose(pb);
++pclose(ps);
++pclose(pmo);
+ snprintf(version_descr, sizeof(version_descr),
+     "%s << HW_REV:%s VENDOR:%s BOOTR:%s SW_REV:%s MODEL:%s >>",
+             desc,h_ver,vendor,b_ver,s_ver,
