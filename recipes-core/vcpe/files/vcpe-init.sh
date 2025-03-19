@@ -23,11 +23,15 @@ sed -i 's|eth0|erouter0|' /lib/rdk/parodus_start.sh
 # webpa: server ip
 sed -i 's|54.166.121.187|10.10.10.210|' /lib/rdk/parodus_start.sh
 
+#
+echo 'exit 0' >> /usr/ccsp/wifi/checkwifi.sh
 
+#
+logmaxsize=2000000
+[ ! -z "${logmaxsize}" ] && sed -i "s/\(maxsize=\"\)[0-9]*\"/\1${logmaxsize}\"/g" /etc/log4crc
 
-#logmaxsize=1000000
-#[ ! -z "${logmaxsize}" ] && sed -i "s/\(maxsize=\"\)[0-9]*\"/\1${logmaxsize}\"/g" /etc/log4crc
-#sed -i '/TRACE/! s/$/\ TRACE/' /etc/debug.ini
+#
+sed -i '/TRACE/! s/$/\ TRACE/' /etc/debug.ini
 
 
 if [ ! -f "$HOME/.bashrc" ]; then
@@ -54,3 +58,5 @@ fi
 
 
 # touch /nvram/rtrouted_traffic_monitor
+
+exit 0
