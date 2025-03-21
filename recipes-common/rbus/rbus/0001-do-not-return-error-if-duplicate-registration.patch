@@ -1,0 +1,30 @@
+From 5f720f05b165e37876f4e10e5b22c4b6d73a9719 Mon Sep 17 00:00:00 2001
+From: Rob Vogelaar <revogelaar@gmail.com>
+Date: Fri, 21 Mar 2025 11:06:25 -0700
+Subject: [PATCH] do not return error if duplicate registration
+
+Signed-off-by: Rob Vogelaar <revogelaar@gmail.com>
+---
+ src/rtmessage/rtrouted.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/rtmessage/rtrouted.c b/src/rtmessage/rtrouted.c
+index 46d8e3d..700f8d5 100644
+--- a/src/rtmessage/rtrouted.c
++++ b/src/rtmessage/rtrouted.c
+@@ -421,9 +421,11 @@ rtRouted_AddAlias(char const* exp, rtRouteEntry * route)
+   rtError rc = RT_OK;
+   rtLog_Debug("AddAlias route=[%p] address=[%s] expression=[%s] alias=[%s]", route, route->subscription->client->ident, route->expression, exp);
+   rc = rtRoutingTree_AddTopicRoute(gRoutingTree, exp, (void *)route, 1/*error if duplicate entry*/);
+-  if (RT_ERROR_DUPLICATE_ENTRY == rc)
++  if (RT_ERROR_DUPLICATE_ENTRY == rc) {
+       if (rtRouted_ShouldLimitLog(exp))
+           rtLog_Warn("Rejecting Duplicate Registration of [%s] by [%s] thro [%s]", exp, route->expression, route->subscription->client->ident);
++      rc = RT_OK;
++  }
+ 
+   return rc;
+ }
+-- 
+2.25.1
+
