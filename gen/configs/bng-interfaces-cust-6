@@ -1,0 +1,49 @@
+source /etc/network/interfaces.d/*
+
+#######
+auto lo
+iface lo inet loopback
+
+#########
+auto eth0
+iface eth0 inet static
+    address 10.10.10.106
+    netmask 255.255.255.0
+    gateway 10.10.10.1
+    dns-nameservers 10.10.10.1
+
+iface eth0 inet6 static
+    address 2001:dbf:0:1::106
+    netmask 64
+    accept_ra 0
+    autoconf 0
+    gateway 2001:dbf:0:1::1
+    dns-nameservers 2001:dbf:0:1::1
+
+#########
+auto eth1
+iface eth1 inet static
+    address 10.106.200.1
+    netmask 255.255.255.0
+    vlan-raw-device eth1
+
+iface eth1 inet6 static
+    address 2001:dae:6:1::129
+    netmask 64
+    accept_ra 0
+    autoconf 0
+    vlan-raw-device eth1
+
+#########
+auto eth2
+iface eth2 inet static
+    address 10.106.201.1
+    netmask 255.255.255.0
+    vlan-raw-device eth1
+
+iface eth2 inet6 static
+    address 2001:daf:6:1::129
+    netmask 64
+    accept_ra 0
+    autoconf 0
+    vlan-raw-device eth2

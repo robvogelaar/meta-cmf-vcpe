@@ -1,0 +1,20 @@
+
+# acs
+10.10.10.200 acs2.revdomain.com
+2001:dbf:0:1::200 acs2.revdomain.com
+
+# firmware server
+10.177.200.1 fw2.revdomain.com
+2001:dbd:0:1::129 fw2.revdomain.com
+
+# ntp server
+10.177.200.1 ntp2.revdomain.com
+2001:dbd:0:1::129 ntp2.revdomain.com
+
+192.168.2.120 fw.local120.revdomain.com
+
+45.33.22.161 fw.linode.revdomain.com
+2600:3c00::f03c:93ff:fe2a:be08 fw.linode.revdomain.com
+
+45.79.197.15 fw.linode2.revdomain.com
+2600:3c02::f03c:93ff:feaf:2b46 fw.linode2.revdomain.com

@@ -1,0 +1,120 @@
+From 782324ada87236fe7e8402d5779f9ca0fc5f8359 Mon Sep 17 00:00:00 2001
+From: Rob Vogelaar <revogelaar@gmail.com>
+Date: Wed, 12 Jul 2023 12:19:27 -0700
+Subject: [PATCH] add option -w to add a delay prior to send ra
+
+Signed-off-by: Rob Vogelaar <revogelaar@gmail.com>
+---
+ log.c   | 6 ++++++
+ log.h   | 3 +++
+ radvd.c | 9 +++++++--
+ send.c  | 6 ++++++
+ 4 files changed, 22 insertions(+), 2 deletions(-)
+
+diff --git a/log.c b/log.c
+index ba3f3fa..3726987 100644
+--- a/log.c
++++ b/log.c
+@@ -24,6 +24,8 @@ static char const *log_file;
+ static FILE *log_file_fd;
+ static int log_facility;
+ static int debug_level = 0;
++static int ra_delay = 0;
++
+ 
+ int log_open(int method, char const *ident, char const *log, int facility)
+ {
+@@ -159,3 +161,7 @@ int log_close(void)
+ void set_debuglevel(int level) { debug_level = level; }
+ 
+ int get_debuglevel(void) { return debug_level; }
++
++void set_ra_delay(int delay) { ra_delay = delay; }
++
++int get_ra_delay(void) { return ra_delay; }
+diff --git a/log.h b/log.h
+index d97ac4e..564d804 100644
+--- a/log.h
++++ b/log.h
+@@ -31,3 +31,6 @@ int log_close(void);
+ int log_reopen(void);
+ void set_debuglevel(int);
+ int get_debuglevel(void);
++
++void set_ra_delay(int);
++int get_ra_delay(void);
+diff --git a/radvd.c b/radvd.c
+index c02bc0a..4608fab 100644
+--- a/radvd.c
++++ b/radvd.c
+@@ -34,6 +34,7 @@ static char usage_str[] = {
+ "  -C, --config=PATH       Set the config file.  Default is /etc/radvd.d.\n"
+ "  -c, --configtest        Parse the config file and exit.\n"
+ "  -d, --debug=NUM         Set the debug level.  Values can be 1, 2, 3, 4 or 5.\n"
++"  -w, --wait=NUM          Wait n ms. before sending router advertisement.\n"
+ "  -f, --facility=NUM      Set the logging facility.\n"
+ "  -h, --help              Show this help screen.\n"
+ "  -l, --logfile=PATH      Set the log file.\n"
+@@ -51,6 +52,7 @@ static struct option prog_opt[] = {
+ 	{"config", 1, 0, 'C'},
+ 	{"configtest", 0, 0, 'c'},
+ 	{"debug", 1, 0, 'd'},
++	{"wait", 1, 0, 'w'},
+ 	{"facility", 1, 0, 'f'},
+ 	{"help", 0, 0, 'h'},
+ 	{"logfile", 1, 0, 'l'},
+@@ -65,7 +67,7 @@ static struct option prog_opt[] = {
+ #else
+ 
+ static char usage_str[] = {
+-"[-hvcn] [-d level] [-C config_path] [-m log_method] [-l log_file]\n"
++"[-hvcn] [-d level] [-w waittosendra_ms] [-C config_path] [-m log_method] [-l log_file]\n"
+ "\t[-f facility] [-p pid_file] [-u username] [-t chrootdir]"
+ 
+ };
+@@ -198,7 +200,7 @@ int main(int argc, char *argv[])
+ 	char const *daemon_pid_file_ident = PATH_RADVD_PID;
+ 
+ /* parse args */
+-#define OPTIONS_STR "d:C:l:m:p:t:u:vhcn"
++#define OPTIONS_STR "d:w:C:l:m:p:t:u:vhcn"
+ #ifdef HAVE_GETOPT_LONG
+ 	int opt_idx;
+ 	while ((c = getopt_long(argc, argv, OPTIONS_STR, prog_opt, &opt_idx)) > 0)
+@@ -213,6 +215,9 @@ int main(int argc, char *argv[])
+ 		case 'd':
+ 			set_debuglevel(atoi(optarg));
+ 			break;
++		case 'w':
++			set_ra_delay(atoi(optarg));
++			break;
+ 		case 'f':
+ 			facility = atoi(optarg);
+ 			break;
+diff --git a/send.c b/send.c
+index eb5910e..9b16bfd 100644
+--- a/send.c
++++ b/send.c
+@@ -14,6 +14,7 @@
+  */
+ 
+ #include "config.h"
++#include "log.h"
+ #include "includes.h"
+ #include "radvd.h"
+ #include "netlink.h"
+@@ -946,6 +947,11 @@ static int send_ra(int sock, struct Interface *iface, struct in6_addr const *des
+ 		// RA built, now send it.
+ 		dlog(LOG_DEBUG, 5, "sending RA to %s on %s (%s), %lu options (using %zd/%u bytes)", dest_text, iface->props.name,
+ 		     src_text, option_count, sb->used, iface->props.max_ra_option_size);
++
++		dlog(LOG_DEBUG, 5, "sleep %dms", get_ra_delay());
++
++		usleep(get_ra_delay() * 1000);
++
+ 		int err = really_send(sock, dest, &iface->props, sb);
+ 		if (err < 0) {
+ 			if (!iface->IgnoreIfMissing || !(errno == EINVAL || errno == ENODEV))
+-- 
+2.25.1
+

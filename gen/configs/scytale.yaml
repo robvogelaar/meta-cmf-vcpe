@@ -1,0 +1,135 @@
+---
+
+########################################
+#   Labeling/Tracing via HTTP Headers Configuration
+########################################
+
+# The unique fully-qualified-domain-name of the server.  It is provided to
+# the X-Scytale-Server header for showing what server fulfilled the request
+# sent.
+# (Optional)
+server: "10.10.10.210"
+
+# Provides this build number to the X-Tr1d1um-Build header for
+# showing machine version information.  The build number SHOULD
+# match the scheme `version-build` but there is not a strict requirement.
+# (Optional)
+build: "0.1.4-1"
+
+# Provides the region information to the X-Tr1d1um-Region header
+# for showing what region this machine is located in.  The region
+# is arbitrary and optional.
+# (Optional)
+region: "east"
+
+# Provides the flavor information to the X-Tr1d1um-Flavor header
+# for showing what flavor this machine is associated with.  The flavor
+# is arbitrary and optional.
+# (Optional)
+flavor: "mint"
+
+
+##############################################################################
+# WebPA Service configuration
+##############################################################################
+
+# For a complete view of the service config structure,
+# checkout https://godoc.org/github.com/Comcast/webpa-common/server#WebPA
+
+########################################
+#   Primary Endpoint Configuration
+########################################
+
+# primary provides the configuration for the main server for this application
+primary:
+  address: ":7000"
+
+########################################
+#   Health Endpoint Configuration
+########################################
+
+# health defines the details needed for the health check endpoint.  The
+# health check endpoint is generally used by services (like AWS Route53
+# or consul) to determine if this particular machine is healthy or not.
+health:
+  address: ":7001"
+
+########################################
+#   Debugging/Pprof Configuration
+########################################
+
+# pprof defines the details needed for the pprof debug endpoint.
+# (Optional)
+pprof:
+  address: ":7002"
+
+########################################
+#   Metrics Configuration
+########################################
+
+# metric defines the details needed for the prometheus metrics endpoint
+# (Optional)
+metric:
+  address: ":7082"
+  metricsOptions:
+    # namespace is the namespace of the metrics provided
+    # (Optional)
+    namespace: "webpa"
+
+    # subsystem is the subsystem of the metrics provided
+    # (Optional)
+    subsystem: "scytale"
+
+fanout:
+  fanoutTimeout: "125s"
+  clientTimeout: "45s"
+  endpoints:
+      - "http://localhost:8080/api/v2/device"
+  authorization: dXNlcjEyMzp3ZWJwYUAxMjM0NTY3ODkw
+
+########################################
+#   Logging Related Configuration
+########################################
+
+# log configures the logging subsystem details
+log:
+  # file is the name of the most recent log file.  If set to "stdout" this
+  # will log to os.Stdout.
+  # (Optional) defaults to os.TempDir()
+  file: "/var/log/scytale/scytale.log"
+
+  # level is the logging level to use - INFO, DEBUG, WARN, ERROR
+  # (Optional) defaults to ERROR
+  level: "DEBUG"
+
+  # maxsize is the maximum log file size in MB
+  # (Optional) defaults to max 100MB
+  maxsize: 50
+
+  # maxage is the maximum number of days to retain old log files
+  # (Optional) defaults to ignore age limit (0)
+  maxage: 30
+
+  # maxbackups is the maximum number of old log files to retain
+  # (Optional) defaults to retain all (0)
+  maxbackups: 10
+
+  # json is a flag indicating whether JSON logging output should be used.
+  # (Optional) defaults to false
+  json: true
+aws:
+  accessKey: "fake-accessKey"
+  secretKey: "fake-secretKey"
+  env: "fake-env"
+  sns:
+    awsEndpoint: http://goaws:4100
+    region: "ap-east-1"
+    topicArn: "arn:aws:sns:ap-east-1:999999999991:fake-env"
+    urlPath: "/api/v2/aws/sns"
+waitForDns: 0
+authHeader: dXNlcjEyMzp3ZWJwYUAxMjM0NTY3ODkw
+start:
+  duration: 1
+  apiPath: http://127.0.0.1:6300/hooks
+  authHeader: dXNlcjEyMzp3ZWJwYUAxMjM0NTY3ODkw
+

@@ -1,0 +1,75 @@
+source /etc/network/interfaces.d/*
+
+#######
+auto lo
+iface lo inet loopback
+
+#########
+auto eth0
+iface eth0 inet static
+    address 10.10.10.109
+    netmask 255.255.255.0
+    gateway 10.10.10.1
+    dns-nameservers 10.10.10.1
+
+iface eth0 inet6 static
+    address 2001:dbf:0:1::109
+    netmask 64
+    gateway 2001:dbf:0:1::1
+    dns-nameservers 2001:dbf:0:1::1
+
+#########
+auto eth1
+iface eth1 inet manual
+    up ifconfig $IFACE 0.0.0.0 up
+    down ifconfig $IFACE down
+
+##############
+auto eth1.1081
+iface eth1.1081 inet static
+    address 10.178.200.1
+    netmask 255.255.255.0
+    vlan-raw-device eth1
+
+iface eth1.1081 inet6 static
+    address 2001:dbe:0:1::129
+    netmask 64
+    accept_ra 0
+    autoconf 0
+    vlan-raw-device eth1
+
+#############
+auto eth1.881
+iface eth1.881 inet static
+    address 10.177.200.1
+    netmask 255.255.255.0
+    vlan-raw-device eth1
+    post-up ip link set $IFACE type vlan egress 0:3 3:3
+    pre-down ip link set $IFACE type vlan egress 0:0 3:0
+
+iface eth1.881 inet6 static
+    address 2001:dbd:0:1::129
+    netmask 64
+    accept_ra 0
+    autoconf 0
+    vlan-raw-device eth1
+    post-up ip link set $IFACE type vlan egress 0:3 3:3
+    pre-down ip link set $IFACE type vlan egress 0:0 3:0
+
+#############
+auto eth1.981
+iface eth1.981 inet static
+    address 10.179.200.1
+    netmask 255.255.255.0
+    vlan-raw-device eth1
+    post-up ip link set $IFACE type vlan egress 0:5 5:5
+    pre-down ip link set $IFACE type vlan egress 0:0 5:0
+
+iface eth1.981 inet6 static
+    address 2001:dbc:0:1::129
+    netmask 64
+    accept_ra 0
+    autoconf 0
+    vlan-raw-device eth1
+    post-up ip link set $IFACE type vlan egress 0:5 5:5
+    pre-down ip link set $IFACE type vlan egress 0:0 5:0

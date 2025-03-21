@@ -1,0 +1,16 @@
+
+# acs
+10.10.10.200 acs1.revdomain.com
+2001:dbf:0:1::200 acs1.revdomain.com
+
+# firmware server
+10.177.200.1 fw1.revdomain.com
+2001:dbd:0:1::129 fw1.revdomain.com
+
+# ntp server
+10.177.200.1 ntp1.revdomain.com
+2001:dbd:0:1::129 ntp1.revdomain.com
+
+
+10.10.10.150 server1.revdomain.com
+2001:dbf:0:1::150 server1.revdomain.com

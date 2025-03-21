@@ -1,0 +1,38 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          dnsmasq-instance-erouter0
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts dnsmasq instance erouter0
+# Description:       Starts the dnsmasq DNS server instance erouter0
+### END INIT INFO
+
+DAEMON=/usr/sbin/dnsmasq
+DAEMON_OPTS="-C /etc/dnsmasq-instance-erouter0.conf"
+NAME=dnsmasq-instance-erouter0
+DESC="dnsmasq instance erouter0"
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+    log_daemon_msg "Starting $DESC" "$NAME"
+    start-stop-daemon --start --quiet --pidfile /var/run/dnsmasq-instance-erouter0.pid --exec $DAEMON -- $DAEMON_OPTS
+    log_end_msg $?
+    ;;
+  stop)
+    log_daemon_msg "Stopping $DESC" "$NAME"
+    start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/dnsmasq-instance-erouter0.pid --exec $DAEMON
+    log_end_msg $?
+    ;;
+  restart|force-reload)
+    $0 stop
+    sleep 1
+    $0 start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|force-reload}"
+    exit 1
+esac

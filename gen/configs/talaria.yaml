@@ -1,0 +1,150 @@
+---
+
+########################################
+#   Labeling/Tracing via HTTP Headers Configuration
+########################################
+
+# The unique fully-qualified-domain-name of the server.  It is provided to
+# the X-Talaria-Server header for showing what server fulfilled the request
+# sent.
+# (Optional)
+  fqdn: <Fully Qualified Domain Name / IP>
+  server: "10.10.10.210"
+  env: test
+  scheme: http
+
+# Provides this build number to the X-Tr1d1um-Build header for
+# showing machine version information.  The build number SHOULD
+# match the scheme `version-build` but there is not a strict requirement.
+# (Optional)
+  build: "0.1.3-1"
+
+# Provides the region information to the X-Tr1d1um-Region header
+# for showing what region this machine is located in.  The region
+# is arbitrary and optional.
+# (Optional)
+  region: "east"
+
+# Provides the flavor information to the X-Tr1d1um-Flavor header
+# for showing what flavor this machine is associated with.  The flavor
+# is arbitrary and optional.
+# (Optional)
+  flavor: "mint"
+
+
+  primary:
+    address: ":8080"
+  health:
+    address: ":8180"
+  pprof:
+    address: ":8280"
+  control:
+    address: ":8203"
+  metric:
+    address: ":8380"
+    metricsOptions:
+      namespace: "xmidt"
+      subsystem: "talaria"
+
+########################################
+#   Service Discovery Configuration
+########################################
+
+  # service defines the parameters needed to interact with the consul cluster
+  # for service discovery.  Presently only consul is supported.  This is
+  # presently only used by Prometheus to discover machines to monitor, but
+  # in the not-too-distant future talaria will use this interaction to load
+  # balance across all caduceus machines instead of using DNS.
+  # (Optional)
+  service:
+    # consul configures the consul library in caduceus to use the local
+    # service discovery agent
+    consul:
+      # client defines how to connect to the local consul agent (on the same
+      # VM/container)
+      client:
+        # address is the address of the local consul agent
+        address: "127.0.0.1:8500"
+        # scheme is how the consul library should interact with the local
+        # consul agent
+        scheme: "http"
+        # waitTime is TBD
+        waitTime: "30s"
+
+      # disableGenerateID is TBD
+      disableGenerateID: true
+
+      # registrations defines what services caduceus should register with
+      # consul
+      #
+      #     id      - the VM/container instance name registered with consul
+      #     name    - the name of service being registered
+      #     tags    - a list of tags to associate with this registration
+      #     address - the mechanism to reach the service (generally unique fqdn)
+      #     port    - the port to reach the service at
+      #     checks  - the list of checks to perform to determine if the service
+      #               is available/healthy
+      #         checkID                        - TBD
+      #         ttl                            - how long the check is valid for
+      #         deregisterCriticalServiceAfter - the duration to wait before the
+      #                                          service is removed due to check
+      #                                          failures
+      registrations:
+        -
+          id: "example_talaria.xmidt.net"
+          name: "talaria"
+          tags:
+            - "prod"
+            - "mint"
+            - "stage=prod"
+            - "flavor=mint"
+          address: <WEBPA_SERVER_IP>
+          port: 6001
+          checks:
+            -
+              checkID: "example_talaria.xmidt.net:ttl"
+              ttl: "30s"
+              deregisterCriticalServiceAfter: "70s"
+
+  log:
+    file: "/var/log/talaria/talaria.log"
+    level: "DEBUG"
+    json: false
+
+  device:
+    manager:
+      upgrader:
+        handshakeTimeout: "10s"
+      initialCapacity: 100000
+      maxDevices: 100
+      deviceMessageQueueSize: 100
+      pingPeriod: "45s"
+      idlePeriod: "135s"
+      requestTimeout: "15s"
+    outbound:
+      method: "POST"
+      eventEndpoints:
+        default: http://127.0.0.1:6300/api/v3/notify
+      requestTimeout: "125s"
+      defaultScheme: "http"
+      allowedSchemes:
+        - "http"
+        - "https"
+      outboundQueueSize: 1000
+      workerPoolSize: 100
+      transport:
+        maxIdleConns: 0
+        maxIdleConnsPerHost: 100
+        idleConnTimeout: "120s"
+      clientTimeout: "160s"
+      authKey: dXNlcjEyMzp3ZWJwYUAxMjM0NTY3ODkw
+  inbound:
+    authKey: dXNlcjEyMzp3ZWJwYUAxMjM0NTY3ODkw
+
+  eventMap:
+    default: http://127.0.0.1:6300/api/v3/notify
+
+  service:
+    defaultScheme: http
+    fixed:
+      - http://127.0.0.1:8080
