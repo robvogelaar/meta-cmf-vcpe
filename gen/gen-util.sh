@@ -521,21 +521,21 @@ get_parent_bridge() {
     return 0
 }
 
-
 get_eth_interface() {
     local mvstring="$1"
-
-    # Extract MV version and P number using regex
-    if [[ "$mvstring" =~ ^(mv[123]|mv2plus)-.*-p([1-4])$ ]]; then
+    # Extract MV version and P number using expanded regex to include vcpe
+    if [[ "$mvstring" =~ ^(mv[123]|mv2plus)-.*-p([1-4])$ || "$mvstring" =~ ^(vcpe)-p([1-4])$ ]]; then
         local mv_type="${BASH_REMATCH[1]}"
         local p_num="${BASH_REMATCH[2]}"
-
         # Convert p_num to zero-based index for array access
         local idx=$((p_num - 1))
-
-        # Handle mv3 differently than mv1/mv2plus
+        
+        # Handle different device types
         if [ "$mv_type" = "mv3" ]; then
             # For mv3, eth1..4 based on p1..p4
+            echo "eth$((idx + 1))"
+        elif [ "$mv_type" = "vcpe" ]; then
+            # For vcpe, same as mv3: eth1..4 based on p1..p4
             echo "eth$((idx + 1))"
         else
             # For mv1/mv2plus, eth0..3 based on p1..p4
@@ -543,11 +543,10 @@ get_eth_interface() {
         fi
         return 0
     else
-        echo "Error: Invalid format. Expected format like mv1-r21-7-p1 or mv2plus-r21-7-001-p3 or mv3-r21-9-002-p4" >&2
+        echo "Error: Invalid format. Expected format like mv1-r21-7-p1, mv2plus-r21-7-001-p3, mv3-r21-9-002-p4, or vcpe-p1" >&2
         return 1
     fi
 }
-
 
 banner() {
     local text="$1"
