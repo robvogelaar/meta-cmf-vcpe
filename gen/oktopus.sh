@@ -75,7 +75,7 @@ lxc init ${image_name} ${container_name} -p ${container_name}
 ##################################################################################
 #
 
-lxc file push $MLD/gen/configs/oktopus.eth0.network oktopus/etc/systemd/network/eth0.network
+lxc file push $M_ROOT/gen/configs/oktopus.eth0.network oktopus/etc/systemd/network/eth0.network
 
 ##################################################################################
 #

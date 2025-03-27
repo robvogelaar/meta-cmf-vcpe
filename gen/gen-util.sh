@@ -1,20 +1,17 @@
 #!/bin/bash
 
-MV_ROOT="$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" )"
+M_ROOT="$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" )"
 
-if [[ ! "$PWD" == "$MV_ROOT"* ]]; then
+if [[ ! "$PWD" == "$M_ROOT"* ]]; then
     SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-    echo "Error: Script is being run from a location outside the current directory" >&2
+    echo "Error: Script(s) are being run from outside the current directory !" >&2
     echo "Current directory: $PWD" >&2
-    echo "Script location  : $SCRIPT_PATH" >&2
-    echo "Please change your PATH to include the correct directory by:" >&2
-    echo "  1. Directly: export PATH=$PWD:\$PATH" >&2
-    echo "  2. Permanently: Add 'export PATH=$PWD:\$PATH' to your ~/.bashrc file" >&2
-    echo "Then try again." >&2
+    echo "PATH             : $SCRIPT_PATH" >&2
+    echo "Please change the current directory or update PATH." >&2
     exit 1
 fi
 
-export MV_ROOT
+export M_ROOT
 
 
 bridges="
@@ -23,7 +20,7 @@ bridges="
         cm \
         wanoe \
         lan-p1 lan-p2 lan-p3 lan-p4 \
-        wlan0 wlan1
+        br-wlan0 br-wlan1
     "
 
 
@@ -76,10 +73,10 @@ check_devuan_chimaera() {
     else
         echo "Creating devuan-chimaera-base image"
         url="https://dl.dropboxusercontent.com/scl/fi/i1amx0tvbd4lygg29o4st/devuan-chimaera.tar.gz?rlkey=9q0mrda1eaohfr85xj2l8zryh&dl=0"
-        file="$MV_ROOT/tmp/devuan-chimaera.tar.gz"
+        file="$M_ROOT/tmp/devuan-chimaera.tar.gz"
         [ -e "$encfile" ] || curl -L -o "$file" "$url"
-        tar xzf $file -C $MV_ROOT/tmp
-        lxc image import $MV_ROOT/tmp/devuan-chimaera $MV_ROOT/tmp/devuan-chimaera.root --alias devuan-chimaera-base
+        tar xzf $file -C $M_ROOT/tmp
+        lxc image import $M_ROOT/tmp/devuan-chimaera $M_ROOT/tmp/devuan-chimaera.root --alias devuan-chimaera-base
     fi
 }
 
@@ -428,7 +425,7 @@ check_and_create_bridges() {
                 ;;
 
             # LAN bridges with VLAN support
-            lan-p[1-4]|wlan[0-1]|wanoe)
+            lan-p[1-4]|br-wlan[0-1]|wanoe)
                 check_and_create_lan_bridge $bridge_name
                 ;;
 

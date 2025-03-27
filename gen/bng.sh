@@ -43,7 +43,7 @@ description: "bng"
 config:
     boot.autostart: "false"
     limits.cpu: ""            # "" effectively means no CPU limits, allowing access to all available CPUs
-    limits.memory: 256MB      # Restrict bng memory usage to 256MB
+    limits.memory: 256MiB      # Restrict bng memory usage to 256MB
 devices:
     eth0:
         name: eth0
@@ -65,7 +65,7 @@ devices:
         path: /
         pool: default
         type: disk
-        size: 512MB
+        size: 1GiB
 EOF
 
 
@@ -83,17 +83,17 @@ echo Configuring ${container_name}
 # Upload interfaces files
 
 if [ "$CUST_ID" -eq 6 ] || [ "$CUST_ID" -eq 7 ] || [ "$CUST_ID" -eq 8 ] || [ "$CUST_ID" -eq 9 ] || [ "$CUST_ID" -eq 20 ] || [ "$CUST_ID" -eq 51 ]; then
-    lxc file push $MV_ROOT/gen/configs/bng-interfaces-cust-$CUST_ID ${container_name}/etc/network/interfaces 1> /dev/null
+    lxc file push $M_ROOT/gen/configs/bng-interfaces-cust-$CUST_ID ${container_name}/etc/network/interfaces 1> /dev/null
 elif [ "$CUST_ID" -eq 68 ] || [ "$CUST_ID" -eq 69 ]; then
     SINGLE_MULTI_VLAN=single-vlan
-    lxc file push $MV_ROOT/gen/configs/bng-interfaces-cust-$CUST_ID-$SINGLE_MULTI_VLAN ${container_name}/etc/network/interfaces 1> /dev/null
+    lxc file push $M_ROOT/gen/configs/bng-interfaces-cust-$CUST_ID-$SINGLE_MULTI_VLAN ${container_name}/etc/network/interfaces 1> /dev/null
 fi
 
 ########################################################################################
 # Upload bng dhcp config files
 
-lxc file push $MV_ROOT/gen/configs/dhcpd.conf ${container_name}/etc/dhcp/dhcpd.conf 1> /dev/null
-lxc file push $MV_ROOT/gen/configs/dhcpd6.conf ${container_name}/etc/dhcp/dhcpd6.conf 1> /dev/null
+lxc file push $M_ROOT/gen/configs/dhcpd.conf ${container_name}/etc/dhcp/dhcpd.conf 1> /dev/null
+lxc file push $M_ROOT/gen/configs/dhcpd6.conf ${container_name}/etc/dhcp/dhcpd6.conf 1> /dev/null
 
 if [ "$CUST_ID" -eq 6 ]; then
     lxc exec ${container_name} -- sed -i 's|10\.100\.|10\.106\.|g' /etc/dhcp/dhcpd.conf
@@ -119,28 +119,28 @@ elif [ "$CUST_ID" -eq 69 ]; then
     lxc exec ${container_name} -- ls
 fi
 
-lxc file push $MV_ROOT/gen/configs/dhcpd-notify.sh ${container_name}/etc/dhcpd-notify.sh --mode '755' 1> /dev/null
+lxc file push $M_ROOT/gen/configs/dhcpd-notify.sh ${container_name}/etc/dhcpd-notify.sh --mode '755' 1> /dev/null
 
 
 ########################################################################################
 # Upload bng radvd config files
 
-lxc file push $MV_ROOT/gen/configs/radvd ${container_name}/usr/sbin/radvd --mode '755' 1> /dev/null
-lxc file push $MV_ROOT/gen/configs/radvd-init ${container_name}/etc/init.d/radvd --mode '755' 1> /dev/null
+lxc file push $M_ROOT/gen/configs/radvd ${container_name}/usr/sbin/radvd --mode '755' 1> /dev/null
+lxc file push $M_ROOT/gen/configs/radvd-init ${container_name}/etc/init.d/radvd --mode '755' 1> /dev/null
 
 if [ "$CUST_ID" -eq 6 ] || [ "$CUST_ID" -eq 7 ] || [ "$CUST_ID" -eq 8 ] || [ "$CUST_ID" -eq 9 ] || [ "$CUST_ID" -eq 20 ]|| [ "$CUST_ID" -eq 51 ]; then
-    lxc file push $MV_ROOT/gen/configs/radvd-cust-$CUST_ID.conf ${container_name}/etc/radvd.conf 1> /dev/null
+    lxc file push $M_ROOT/gen/configs/radvd-cust-$CUST_ID.conf ${container_name}/etc/radvd.conf 1> /dev/null
 elif [ "$CUST_ID" -eq 68 ] || [ "$CUST_ID" -eq 69 ]; then
     SINGLE_MULTI_VLAN=single-vlan
-    lxc file push $MV_ROOT/gen/configs/radvd-cust-$CUST_ID-$SINGLE_MULTI_VLAN.conf ${container_name}/etc/radvd.conf 1> /dev/null
+    lxc file push $M_ROOT/gen/configs/radvd-cust-$CUST_ID-$SINGLE_MULTI_VLAN.conf ${container_name}/etc/radvd.conf 1> /dev/null
 fi
 
 ########################################################################################
 # Upload bng additional config files
 
-lxc file push $MV_ROOT/gen/configs/ntp.conf ${container_name}/etc/ntp.conf 1> /dev/null
+lxc file push $M_ROOT/gen/configs/ntp.conf ${container_name}/etc/ntp.conf 1> /dev/null
 
-lxc file push $MV_ROOT/gen/configs/ports.conf ${container_name}/etc/apache2/ports.conf 1> /dev/null
+lxc file push $M_ROOT/gen/configs/ports.conf ${container_name}/etc/apache2/ports.conf 1> /dev/null
 
 if [ "$CUST_ID" -eq 6 ]; then
     :
@@ -167,7 +167,7 @@ fi
 ########################################################################################
 # Upload DCM config file
 
-lxc file push $MV_ROOT/gen/configs/DCMresponse.txt ${container_name}/var/www/html/ 1> /dev/null
+lxc file push $M_ROOT/gen/configs/DCMresponse.txt ${container_name}/var/www/html/ 1> /dev/null
 
 # Enable and start services
 lxc exec ${container_name} -- bash -c "update-rc.d isc-dhcp-server defaults" > /dev/null 2>&1
@@ -231,7 +231,7 @@ if true; then
 
 
     # Create and upload the VLAN init script
-    cat << EOF > $MV_ROOT/gen/configs/iptables-restore
+    cat << EOF > $M_ROOT/gen/configs/iptables-restore
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          iptables-restore
@@ -246,9 +246,9 @@ iptables-restore < /etc/iptables/rules.v4
 ip6tables-restore < /etc/iptables/rules.v6
 EOF
 
-    lxc file push $MV_ROOT/gen/configs/iptables-restore ${container_name}/etc/init.d/iptables-restore --mode '755' 1> /dev/null
+    lxc file push $M_ROOT/gen/configs/iptables-restore ${container_name}/etc/init.d/iptables-restore --mode '755' 1> /dev/null
 
-    rm $MV_ROOT/gen/configs/iptables-restore
+    rm $M_ROOT/gen/configs/iptables-restore
 
     lxc exec ${container_name} -- bash -c "update-rc.d iptables-restore defaults" > /dev/null 2>&1
 fi
@@ -261,11 +261,11 @@ lxc exec ${container_name} -- bash -c "dd if=/dev/random of=/var/www/html/random
 ########################################################################################
 # dnsmasq
 
-lxc file push $MV_ROOT/gen/configs/dnsmasq-instance-erouter0.conf ${container_name}/etc/ 1> /dev/null
-lxc file push $MV_ROOT/gen/configs/dnsmasq-instance-mg0.conf ${container_name}/etc/ 1> /dev/null
+lxc file push $M_ROOT/gen/configs/dnsmasq-instance-erouter0.conf ${container_name}/etc/ 1> /dev/null
+lxc file push $M_ROOT/gen/configs/dnsmasq-instance-mg0.conf ${container_name}/etc/ 1> /dev/null
 
-lxc file push $MV_ROOT/gen/configs/dnsmasq-instance-erouter0.hosts ${container_name}/etc/ 1> /dev/null
-lxc file push $MV_ROOT/gen/configs/dnsmasq-instance-mg0.hosts ${container_name}/etc/ 1> /dev/null
+lxc file push $M_ROOT/gen/configs/dnsmasq-instance-erouter0.hosts ${container_name}/etc/ 1> /dev/null
+lxc file push $M_ROOT/gen/configs/dnsmasq-instance-mg0.hosts ${container_name}/etc/ 1> /dev/null
 
 if [ "$CUST_ID" -eq 6 ]; then
     lxc exec ${container_name} -- sed -i 's|10\.100\.|10\.106\.|g' /etc/dnsmasq-instance-erouter0.conf
@@ -298,12 +298,12 @@ fi
 
 
 lxc exec ${container_name} -- mkdir /etc/dnsmasq-instance-erouter0.d
-lxc file push $MV_ROOT/gen/configs/dnsmasq-instance-erouter0 ${container_name}/etc/init.d/ --mode '755' 1> /dev/null
+lxc file push $M_ROOT/gen/configs/dnsmasq-instance-erouter0 ${container_name}/etc/init.d/ --mode '755' 1> /dev/null
 lxc exec ${container_name} -- bash -c "update-rc.d dnsmasq-instance-erouter0 defaults" > /dev/null 2>&1
 
 if [ "$CUST_ID" -eq 9 ]; then
     lxc exec ${container_name} -- mkdir /etc/dnsmasq-instance-mg0.d
-    lxc file push $MV_ROOT/gen/configs/dnsmasq-instance-mg0 ${container_name}/etc/init.d/ --mode '755' 1> /dev/null
+    lxc file push $M_ROOT/gen/configs/dnsmasq-instance-mg0 ${container_name}/etc/init.d/ --mode '755' 1> /dev/null
     lxc exec ${container_name} -- bash -c "update-rc.d dnsmasq-instance-mg0 defaults" > /dev/null 2>&1
 fi
 
@@ -312,18 +312,18 @@ lxc exec ${container_name} -- bash -c "update-rc.d dnsmasq disable" > /dev/null 
 ########################################################################################
 # mosquitto
 
-lxc file push $MV_ROOT/gen/configs/mosquitto.conf ${container_name}/etc/mosquitto/ 1> /dev/null
+lxc file push $M_ROOT/gen/configs/mosquitto.conf ${container_name}/etc/mosquitto/ 1> /dev/null
 lxc exec ${container_name} -- bash -c "sed -i '/PIDFILE=\/run\/mosquitto\/mosquitto.pid/a mkdir -p /run/mosquitto' /etc/init.d/mosquitto"
 
-lxc file push $MV_ROOT/gen/usp-controller/usp_msg_1_2_pb2.py ${container_name}/root/ 1> /dev/null
-lxc file push $MV_ROOT/gen/usp-controller/usp_record_1_2_pb2.py ${container_name}/root/ 1> /dev/null
-lxc file push $MV_ROOT/gen/usp-controller/mqtt-usp-client.py ${container_name}/root/ 1> /dev/null
+lxc file push $M_ROOT/gen/usp-controller/usp_msg_1_2_pb2.py ${container_name}/root/ 1> /dev/null
+lxc file push $M_ROOT/gen/usp-controller/usp_record_1_2_pb2.py ${container_name}/root/ 1> /dev/null
+lxc file push $M_ROOT/gen/usp-controller/mqtt-usp-client.py ${container_name}/root/ 1> /dev/null
 
 
 ########################################################################################
 # iperf3 server
 
-lxc file push $MV_ROOT/gen/configs/iperf3-server ${container_name}/etc/init.d/ 1> /dev/null
+lxc file push $M_ROOT/gen/configs/iperf3-server ${container_name}/etc/init.d/ 1> /dev/null
 lxc exec ${container_name} -- bash -c "chmod +x /etc/init.d/iperf3-server"
 lxc exec ${container_name} -- bash -c "update-rc.d iperf3-server defaults" > /dev/null 2>&1
 

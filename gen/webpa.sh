@@ -60,9 +60,9 @@ EOF
 
 lxc launch ${image_name} ${container_name} -p ${container_name}
 
-#lxc file push $METAVCPE/gen/configs/webpa.eth0.nmconnection ${container_name}/etc/NetworkManager/system-connections/eth0.nmconnection 1> /dev/null
+#lxc file push $M_ROOT/gen/configs/webpa.eth0.nmconnection ${container_name}/etc/NetworkManager/system-connections/eth0.nmconnection 1> /dev/null
 
-lxc file push $METAVCPE/gen/configs/webpa.eth0.nmconnection ${container_name}/etc/NetworkManager/system-connections/eth0.nmconnection
+lxc file push $M_ROOT/gen/configs/webpa.eth0.nmconnection ${container_name}/etc/NetworkManager/system-connections/eth0.nmconnection
 
 
 lxc exec ${container_name} -- chmod 600 /etc/NetworkManager/system-connections/eth0.nmconnection
@@ -96,9 +96,9 @@ lxc exec ${container_name} -- yum install -y --nogpgcheck https://github.com/xmi
 lxc exec ${container_name} -- yum install -y --nogpgcheck https://github.com/xmidt-org/tr1d1um/releases/download/v0.1.2/tr1d1um-0.1.2-1.el7.x86_64.rpm
 
 
-lxc file push $METAVCPE/gen/configs/tr1d1um.yaml ${container_name}/etc/tr1d1um/tr1d1um.yaml
-lxc file push $METAVCPE/gen/configs/scytale.yaml ${container_name}/etc/scytale/scytale.yaml
-lxc file push $METAVCPE/gen/configs/talaria.yaml ${container_name}/etc/talaria/talaria.yaml
+lxc file push $M_ROOT/gen/configs/tr1d1um.yaml ${container_name}/etc/tr1d1um/tr1d1um.yaml
+lxc file push $M_ROOT/gen/configs/scytale.yaml ${container_name}/etc/scytale/scytale.yaml
+lxc file push $M_ROOT/gen/configs/talaria.yaml ${container_name}/etc/talaria/talaria.yaml
 
 lxc exec ${container_name} -- systemctl start tr1d1um
 lxc exec ${container_name} -- systemctl start scytale 
