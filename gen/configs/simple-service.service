@@ -1,0 +1,17 @@
+[Unit]
+Description=Spring Boot Simple Service
+After=network.target
+
+[Service]
+User=root
+ExecStart=/usr/bin/java -jar /root/simple-service/target/simple-service-1.0-SNAPSHOT.jar
+SuccessExitStatus=143
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=simple-service
+
+[Install]
+WantedBy=multi-user.target
+
