@@ -20,4 +20,9 @@ IMAGE_INSTALL_append = " \
     vcpe-init \
 "
 
+IMAGE_INSTALL_append = " \
+    strace \
+    lsof \
+"
+
 do_rootfs[nostamp] = "1"
