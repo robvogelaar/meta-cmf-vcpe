@@ -2,9 +2,6 @@
 
 source gen-util.sh
 
-check_mld
-check_lxd_version
-#check_and_create_bridges
 
 container_name="java"
 image_name="centos9"
@@ -34,12 +31,12 @@ fi
 lxc profile copy default ${container_name}
 
 cat << EOF | lxc profile edit ${container_name}
-name: webpa
-description: "webpa"
+name: java
+description: "java"
 config:
     boot.autostart: "false"
-    limits.cpu: ""            # "" effectively means no CPU limits, allowing access to all available CPUs
-    limits.memory: 256MB      # Restrict bng memory usage to 256MB
+    limits.cpu: ""      # "" effectively means no CPU limits, allowing access to all available CPUs
+    limits.memory: ""   #
 devices:
     eth0:
         name: eth0
@@ -51,7 +48,7 @@ devices:
         path: /
         pool: default
         type: disk
-        size: 512MB
+        size: 2GiB
 EOF
 
 ########################################################################################
@@ -62,7 +59,7 @@ EOF
 lxc launch ${image_name} ${container_name} -p ${container_name}
 
 
-lxc file push $MLD/gen/configs/java.eth0.nmconnection ${container_name}/etc/NetworkManager/system-connections/eth0.nmconnection
+lxc file push $M_ROOT/gen/configs/java.eth0.nmconnection ${container_name}/etc/NetworkManager/system-connections/eth0.nmconnection
 
 
 lxc exec ${container_name} -- chmod 600 /etc/NetworkManager/system-connections/eth0.nmconnection
@@ -91,14 +88,15 @@ lxc exec ${container_name} -- nmcli connection up eth0
 lxc exec ${container_name} -- dnf install -y tar ncurses dnf which procps-ng findutils
 lxc exec ${container_name} -- yum install -y wget tcpdump
 
-lxc file push $MLD/gen/configs/simple-service.tar.gz ${container_name}/
+lxc exec ${container_name} -- dnf install -y java-17-openjdk java-17-openjdk-devel
+
+lxc file push $M_ROOT/gen/configs/simple-service.tar.gz ${container_name}/
 lxc exec ${container_name} -- tar xavf /simple-service.tar.gz -C /root
 lxc exec ${container_name} -- wget -c https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz -P /root
 lxc exec ${container_name} -- tar xavf /root/apache-maven-3.9.9-bin.tar.gz -C /opt
 lxc exec ${container_name} -- /opt/apache-maven-3.9.9/bin/mvn -f /root/simple-service/pom.xml clean package
 
-lxc file push $MLD/gen/configs/simple-service.service ${container_name}/etc/systemd/system/
+lxc file push $M_ROOT/gen/configs/simple-service.service ${container_name}/etc/systemd/system/
 lxc exec ${container_name} -- systemctl daemon-reload
 lxc exec ${container_name} -- systemctl enable simple-service
 lxc exec ${container_name} -- systemctl start simple-service
-

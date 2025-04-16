@@ -2,8 +2,6 @@
 
 source gen-util.sh
 
-check_lxd_version
-#check_and_create_bridges
 
 container_name="oktopus"
 image_name="debian12"

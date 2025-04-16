@@ -1,10 +1,15 @@
 #!/bin/bash
+
+source gen-util.sh
+
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 path/to/vcpe-image-qemux86.lxd.tar.bz2 or user@host:/path/to/vcpe-image-qemux86.lxd.tar.bz2>"
     exit 1
 fi
+
 input=$1
 imagefile=$input
+
 # Check if input matches SCP URL pattern (user@host:/path)
 if [[ $input =~ ^[^@]+@[^:]+:.+ ]]; then
     # Create tmp directory if it doesn't exist
@@ -18,11 +23,13 @@ if [[ $input =~ ^[^@]+@[^:]+:.+ ]]; then
     fi
     imagefile="./tmp/$filename"
 fi
+
 # Verify file exists
 if [ ! -f "$imagefile" ]; then
     echo "Error: File not found: $imagefile"
     exit 1
 fi
+
 imagename="${imagefile##*/}"; imagename="${imagename%.tar.bz2}"
 containername="vcpe"
 profilename="${containername}"
@@ -58,16 +65,10 @@ lxc profile device add ${profilename} eth1 nic nictype=bridged parent=lan-p1 nam
 sudo bridge vlan add vid 100 dev lan-p1 self
 
 
-#lxc profile device add ${profilename} wlan0 nic name=wlan0 nictype=physical parent=wlan0
-#lxc profile device add ${profilename} wlan1 nic name=wlan1 nictype=physical parent=wlan1
-#lxc profile device add ${profilename} wlan2 nic name=wlan2 nictype=physical parent=wlan2
-#lxc profile device add ${profilename} wlan3 nic name=wlan3 nictype=physical parent=wlan3
-
-
-lxc profile device add ${profilename} wlan0 nic name=wlan0 nictype=macvlan parent=wlan0
-lxc profile device add ${profilename} wlan1 nic name=wlan1 nictype=macvlan parent=wlan1
-lxc profile device add ${profilename} wlan2 nic name=wlan2 nictype=macvlan parent=wlan2
-lxc profile device add ${profilename} wlan3 nic name=wlan3 nictype=macvlan parent=wlan3
+lxc profile device add ${profilename} wlan0 nic name=wlan0 nictype=macvlan parent=virt-wlan0
+lxc profile device add ${profilename} wlan1 nic name=wlan1 nictype=macvlan parent=virt-wlan1
+lxc profile device add ${profilename} wlan2 nic name=wlan2 nictype=macvlan parent=virt-wlan2
+lxc profile device add ${profilename} wlan3 nic name=wlan3 nictype=macvlan parent=virt-wlan3
 
 # nvram
 if ! lxc storage volume show default $volumename > /dev/null 2>&1; then

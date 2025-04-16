@@ -7,8 +7,6 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-check_lxd_version
-
 CUST_ID=$1
 container_name="bng-$CUST_ID"
 

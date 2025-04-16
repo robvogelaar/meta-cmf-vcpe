@@ -1,28 +1,5 @@
 #!/bin/bash
 
-M_ROOT="$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" )"
-
-if [[ ! "$PWD" == "$M_ROOT"* ]]; then
-    SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
-    echo "Error: Script(s) are being run from outside the current directory !" >&2
-    echo "Current directory: $PWD" >&2
-    echo "PATH             : $SCRIPT_PATH" >&2
-    echo "Please change the current directory or update PATH." >&2
-    exit 1
-fi
-
-export M_ROOT
-
-
-bridges="
-        lxdbr1 \
-        wan \
-        cm \
-        wanoe \
-        lan-p1 lan-p2 lan-p3 lan-p4 \
-        br-wlan0 br-wlan1
-    "
-
 
 check_lxd_version() {
     if command -v lxd &> /dev/null; then
@@ -314,6 +291,17 @@ check_and_create_lxdbr1() {
 }
 
 
+check_lxdbr0() {
+
+    # Check for the specific LXD comment
+    if sudo iptables -t nat -L -v | grep -q "generated for LXD network lxdbr0"; then
+        echo "LXD network rule for lxdbr0 found"
+    else
+        echo "LXD network rule for lxdbr0 not found"
+    fi
+}
+
+
 check_and_create_wan_bridge() {
 
     bridge_name=$1
@@ -392,20 +380,23 @@ check_and_create_lan_bridge() {
 
 
 check_bridges() {
-    missing_bridges=()
+    local ret=0
+
     for bridge_name in $bridges; do
-        if ! ip link show "$bridge_name" > /dev/null 2>&1; then
-            missing_bridges+=("$bridge_name")
+        # Check if bridge exists using ip link - silent if exists
+        if ! ip link show dev "$bridge_name" &>/dev/null; then
+            echo "Bridge $bridge_name does not exist"
+            ret=1
         fi
     done
 
-    if [ ${#missing_bridges[@]} -ne 0 ]; then
-        echo "Error: The following bridges are missing: ${missing_bridges[*]}"
-        echo "Please use the 'bridges' command to verify and create the missing bridges."
-        return 1
-    else
-        return 0
+    # Check lxdbr0 - silent if exists
+    if ! ip link show dev "lxdbr0" &>/dev/null; then
+        echo "Bridge lxdbr0 does not exist"
+        ret=1
     fi
+
+    return $ret
 }
 
 
@@ -416,26 +407,37 @@ check_and_create_bridges() {
 
             # lxdbr1
             lxdbr1)
+                echo '------------------------------------------------------'
                 check_and_create_lxdbr1
                 ;;
 
             # WAN bridges
             wan|cm)
+                echo '------------------------------------------------------'
                 check_and_create_wan_bridge $bridge_name
                 ;;
 
             # LAN bridges with VLAN support
             lan-p[1-4]|br-wlan[0-1]|wanoe)
+                echo '------------------------------------------------------'
                 check_and_create_lan_bridge $bridge_name
+                # sudo bridge vlan show dev $bridge_name
                 ;;
 
             *)
+                echo '------------------------------------------------------'
                 echo "Error: Unsupported bridge name: ${bridge_name}"
                 ret=1
                 continue
                 ;;
         esac
     done
+
+    echo '------------------------------------------------------'
+
+    #check_lxdbr0
+    #echo '------------------------------------------------------'
+
     return $ret
 }
 
@@ -526,7 +528,7 @@ get_eth_interface() {
         local p_num="${BASH_REMATCH[2]}"
         # Convert p_num to zero-based index for array access
         local idx=$((p_num - 1))
-        
+
         # Handle different device types
         if [ "$mv_type" = "mv3" ]; then
             # For mv3, eth1..4 based on p1..p4
@@ -545,10 +547,56 @@ get_eth_interface() {
     fi
 }
 
+
+check_and_create_virt_wlan() {
+    # Define the expected interfaces
+    local interfaces=("virt-wlan0" "virt-wlan1" "virt-wlan2" "virt-wlan3")
+    local missing=0
+
+    # Check each interface
+    for iface in "${interfaces[@]}"; do
+        if ! ip link show "$iface" &>/dev/null; then
+            missing=$((missing + 1))
+        fi
+    done
+
+    # If any interfaces are missing, create them
+    if [ $missing -gt 0 ]; then
+        echo "Virtual wlan interfaces are missing. Creating virtual wlan interfaces now..."
+
+        # Check if mac80211_hwsim is already loaded
+        if lsmod | grep -q "mac80211_hwsim"; then
+            echo "Unloading mac80211_hwsim module..."
+            sudo modprobe -r mac80211_hwsim
+        fi
+
+        # Load the module with 4 radios
+        echo "Loading mac80211_hwsim with 4 radios..."
+        sudo modprobe mac80211_hwsim radios=4
+
+        # Wait a moment for interfaces to be created
+        sleep 1
+
+        # Rename the interfaces
+        for i in {0..3}; do
+            if ip link show "wlan$i" &>/dev/null; then
+                echo "Renaming wlan$i to virt-wlan$i"
+                sudo ip link set "wlan$i" down
+                sudo ip link set "wlan$i" name "virt-wlan$i"
+                sudo ip link set "virt-wlan$i" up
+            else
+                echo "Warning: wlan$i was not created by mac80211_hwsim"
+            fi
+        done
+
+    fi
+}
+
+
 banner() {
     local text="$1"
     local color="${2:-white}"  # Default to white if no color specified
-    
+
     case "$color" in
         "grey")   color_code="\e[30m" ;;
         "red")    color_code="\e[31m" ;;
@@ -558,6 +606,59 @@ banner() {
         "yellow") color_code="\e[33m" ;;
         *)        color_code="\e[37m" ;; # Default to white
     esac
-    
+
     echo -e "${color_code}${text}\e[0m"
 }
+
+validate_lan_port() {
+    local port_num=$1
+    local lan_var="lan_p${port_num}"
+    local vlan_var="lan_p${port_num}_vlan"
+
+    [[ -n "${!lan_var}" && "${!lan_var}" != "wanoe" && "${!lan_var}" != "wan" ]] && {
+        declare -g ${vlan_var}="$(validate_and_hash "${!lan_var}")" &&
+        [[ "${!vlan_var}" == "-1" ]] && {
+            echo "cannot determine unique vlan for ${lan_var} ${!lan_var}"
+            exit 1
+        }
+    }
+}
+
+
+main() {
+    M_ROOT="$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )" )"
+
+    if [[ ! "$PWD" == "$M_ROOT"* ]]; then
+        SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
+        echo "Error: Script(s) are being run from outside the current directory !" >&2
+        echo "Current directory: $PWD" >&2
+        echo "PATH             : $SCRIPT_PATH" >&2
+        echo "Please change the current directory or update PATH." >&2
+        exit 1
+    fi
+
+    export M_ROOT
+
+    check_lxd_version
+
+    bridges="
+            lxdbr1 \
+            wan \
+            cm \
+            wanoe \
+            lan-p1 lan-p2 lan-p3 lan-p4 \
+            br-wlan0 br-wlan1
+        "
+
+
+    check_bridges
+    if [ $? -eq 1 ]; then
+        echo -e "Required bridges are missing. Creating bridges now...\n"
+        check_and_create_bridges
+    fi
+
+    check_and_create_virt_wlan
+
+}
+
+main

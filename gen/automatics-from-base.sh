@@ -54,6 +54,7 @@ EOF
 
 lxc launch automatics-base ${container_name} -p ${container_name}
 
+
 lxc file push $M_ROOT/gen/configs/automatics.eth0.nmconnection ${container_name}/etc/NetworkManager/system-connections/eth0.nmconnection
 lxc exec ${container_name} -- chmod 600 /etc/NetworkManager/system-connections/eth0.nmconnection
 lxc exec ${container_name} -- chown root:root /etc/NetworkManager/system-connections/eth0.nmconnection
@@ -72,7 +73,10 @@ lxc exec ${container_name} -- nmcli connection modify eth0 +ipv6.routes "2001:db
 lxc exec ${container_name} -- nmcli connection modify eth0 +ipv6.routes "2001:dbe:0:1::/64 2001:dbf:0:1::109"
 lxc exec ${container_name} -- nmcli connection up eth0
 
+
+
 lxc exec ${container_name} -- systemctl stop tomcat
+
 
 ###################################################################################################################################
 # Install build configure deploy automatics-props
@@ -112,6 +116,7 @@ lxc exec ${container_name} -- touch /opt/automatics/apache-tomcat-9.0.102/bin/ch
 lxc exec ${container_name} -- touch /opt/automatics/apache-tomcat-9.0.102/bin/mainUI.jmd
 
 lxc exec ${container_name} -- cp /root/automatics/releases/Automatics-v3.35/Automatics.war /opt/automatics/apache-tomcat-9.0.102/webapps/
+
 
 lxc exec ${container_name} -- sed -i 's|<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>|<property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>|g' /root/automatics/config/hibernate.cfg.xml
 lxc exec ${container_name} -- sed -i 's|<property name="hibernate.connection.username"></property>|<property name="hibernate.connection.username">root</property>|g' /root/automatics/config/hibernate.cfg.xml
