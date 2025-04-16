@@ -30,9 +30,10 @@ echo 'exit 0' >> /usr/ccsp/wifi/checkwifi.sh
 logmaxsize=2000000
 [ ! -z "${logmaxsize}" ] && sed -i "s/\(maxsize=\"\)[0-9]*\"/\1${logmaxsize}\"/g" /etc/log4crc
 
-#
-sed -i '/TRACE/! s/$/\ TRACE/' /etc/debug.ini
-
+# enabling trace results in no logfiles
+# sed -i '/TRACE/! s/$/\ TRACE/' /etc/debug.ini
+# make sure trace is not enabled
+sed -i 's/\ TRACE//g' /etc/debug.ini
 
 if [ ! -f "$HOME/.bashrc" ]; then
     cat > "$HOME/.bashrc" << EOL
