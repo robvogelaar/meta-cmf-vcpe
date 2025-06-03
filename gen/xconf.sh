@@ -18,7 +18,8 @@ lxc delete ${container_name} -f 2>/dev/null
 ########################################################################################
 # create profile
 
-lxc profile delete ${container_name} 2> /dev/null
+lxc profile delete ${container_name} &> /dev/null
+
 lxc profile copy default ${container_name}
 
 cat << EOF | lxc profile edit ${container_name}
