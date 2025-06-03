@@ -58,10 +58,12 @@ devices:
         size: "512MB"
 EOF
 # eth0
-lxc profile device add ${profilename} eth0 nic nictype=bridged parent=wan name=eth0
+#lxc profile device add ${profilename} eth0 nic nictype=bridged parent=wan name=eth0
+lxc profile device add ${profilename} eth0 nic nictype=bridged parent=wan name=eth0 hwaddr=00:16:3e:20:79:68
 
 # eth1
-lxc profile device add ${profilename} eth1 nic nictype=bridged parent=lan-p1 name=eth1 vlan=100
+#lxc profile device add ${profilename} eth1 nic nictype=bridged parent=lan-p1 name=eth1 vlan=100
+lxc profile device add ${profilename} eth1 nic nictype=bridged parent=lan-p1 name=eth1 vlan=100 hwaddr=00:16:3e:16:5f:7c
 sudo bridge vlan add vid 100 dev lan-p1 self
 
 
