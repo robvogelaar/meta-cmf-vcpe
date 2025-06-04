@@ -31,11 +31,11 @@ check_network "${container_name}"
 lxc exec ${container_name} -- sh -c 'echo "alias c=\"clear && printf \\047\\033[3J\\047; printf \\047\\033[0m\\047\"" >> ~/.bashrc'
 
 ###################################################################################################################################
-# Java nginx 
+# Java nginx maven
 
 lxc exec ${container_name} -- apt update -qq
 lxc exec ${container_name} -- apt install -y -qq openjdk-8-jdk
-lxc exec ${container_name} -- apt-get install -y -qq nginx
+lxc exec ${container_name} -- apt-get install -y -qq nginx maven
 
 
 ###################################################################################################################################
