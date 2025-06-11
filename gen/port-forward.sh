@@ -27,12 +27,22 @@
 #
 # automatics-orchestration:
 #
+#       http://192.168.2.120:5555/Automatics/login.htm
+#
 # automatics-props:
-#       http://192.168.2.120:5555/AutomaticsProps/automatics/props
 #       http://192.168.2.120:5555/AutomaticsProps/automatics/deviceConfig
+#       http://192.168.2.120:5555/AutomaticsProps/automatics/property
+#
+#       john
+#       Winner@123
+#
+#
 #
 # device manager:
 #       http://192.168.2.120:5555/DeviceManagerUI/login.html
+#       admin
+#       ""
+#
 #       http://192.168.2.120:5555/DeviceManager/swagger-ui.html
 #
 ###############################################################################################
@@ -74,7 +84,7 @@ echo ""
 
 ssh -L $host:8888:10.10.10.200:80 \
     -L $host:7777:10.10.10.220:80 \
-    -L $host:5555:10.10.10.250:8080 \
+    -L $host:5555:10.10.10.240:8080 \
     -L $host:19093:10.10.10.250:19093 \
     -L $host:5601:10.10.10.251:5601 \
     $username@$host
