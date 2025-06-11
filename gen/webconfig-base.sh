@@ -34,34 +34,23 @@ lxc exec ${container_name} -- sh -c 'echo "alias c=\"clear && printf \\047\\033[
 ###################################################################################################################################
 
 
-echo "=== METHOD 1: OpenJDK 11 (Default Repository) ==="
-echo ""
-echo "# Update package list"
-echo "lxc exec \${container_name} -- apt update"
-echo ""
-echo "# Install OpenJDK 11 (JDK + JRE)"
-echo "lxc exec \${container_name} -- apt install -y openjdk-11-jdk"
-echo ""
-echo "# Verify installation"
-echo "lxc exec \${container_name} -- java -version"
-echo "lxc exec \${container_name} -- javac -version"
-echo ""
+lxc exec ${container_name} -- apt update
+lxc exec ${container_name} -- apt install -y openjdk-11-jdk
 
 
-# Go installation with proper PATH setup
-echo "# 1. GO INSTALLATION (Fixed)"
-echo "lxc exec \${container_name} -- wget https://golang.org/dl/go1.20.3.linux-amd64.tar.gz"
-echo "lxc exec \${container_name} -- tar -C /usr/local -xzf go1.20.3.linux-amd64.tar.gz"
-echo ""
-echo "# Fix: Add Go to PATH"
-echo "lxc exec \${container_name} -- bash -c 'echo \"export PATH=\\\$PATH:/usr/local/go/bin\" >> /etc/profile'"
-echo "lxc exec \${container_name} -- bash -c 'echo \"export PATH=\\\$PATH:/usr/local/go/bin\" >> ~/.bashrc'"
-echo ""
-echo "# Test Go installation:"
-echo "lxc exec \${container_name} -- /usr/local/go/bin/go version"
-echo "# Or with PATH set:"
-echo "lxc exec \${container_name} -- bash -c 'source /etc/profile && go version'"
-echo ""
+lxc exec ${container_name} -- wget https://golang.org/dl/go1.20.3.linux-amd64.tar.gz
+lxc exec ${container_name} -- tar -C /usr/local -xzf go1.20.3.linux-amd64.tar.gz
+
+lxc exec ${container_name} -- bash -c 'echo \"export PATH=\\\$PATH:/usr/local/go/bin\" >> /etc/profile'
+lxc exec ${container_name} -- bash -c 'echo \"export PATH=\\\$PATH:/usr/local/go/bin\" >> ~/.bashrc'
+
+exit 0
+
+# Test Go installation:"
+lxc exec \${container_name} -- /usr/local/go/bin/go version"
+# Or with PATH set:"
+lxc exec \${container_name} -- bash -c 'source /etc/profile && go version'"
+"
 
 # Java (already working)
 echo "# 2. JAVA (Already working correctly)"
@@ -76,7 +65,7 @@ echo "lxc exec \${container_name} -- wget -q -O - https://downloads.apache.org/c
 echo "lxc exec \${container_name} -- mv /tmp/cassandra.gpg /etc/apt/trusted.gpg.d/"
 echo "lxc exec \${container_name} -- echo \"deb https://debian.cassandra.apache.org 41x main\" > /etc/apt/sources.list.d/cassandra.sources.list"
 echo ""
-echo "# Option B: Your current approach (works but deprecated)"
+echo "# Option B: Current approach (works but deprecated)"
 echo "lxc exec \${container_name} -- bash -c 'echo \"deb https://debian.cassandra.apache.org 41x main\" | tee -a /etc/apt/sources.list.d/cassandra.sources.list'"
 echo "lxc exec \${container_name} -- bash -c 'curl https://downloads.apache.org/cassandra/KEYS | apt-key add'"
 echo ""
