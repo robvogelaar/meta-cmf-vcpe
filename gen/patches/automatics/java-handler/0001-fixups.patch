@@ -1,0 +1,48 @@
+From 44c74dc72b6b0b0a6ae52b4ed97bfc866b5696b7 Mon Sep 17 00:00:00 2001
+From: Rob Vogelaar <revogelaar@gmail.com>
+Date: Wed, 11 Jun 2025 11:48:24 -0700
+Subject: [PATCH] fixups
+
+Signed-off-by: Rob Vogelaar <revogelaar@gmail.com>
+---
+ .../DeviceConnectionProviderImplTest.java                | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/test/java/com/connectionproviders/deviceconnectionprovider/DeviceConnectionProviderImplTest.java b/src/test/java/com/connectionproviders/deviceconnectionprovider/DeviceConnectionProviderImplTest.java
+index d60e905..76ff86c 100644
+--- a/src/test/java/com/connectionproviders/deviceconnectionprovider/DeviceConnectionProviderImplTest.java
++++ b/src/test/java/com/connectionproviders/deviceconnectionprovider/DeviceConnectionProviderImplTest.java
+@@ -32,6 +32,7 @@ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ 
+ import com.automatics.device.Device;
++import com.automatics.core.SupportedModelHandler;
+ 
+ /**
+  * Unit test for deviceConnectionProviderImpl.
+@@ -45,8 +46,11 @@ public class DeviceConnectionProviderImplTest
+     @Test
+     public void shouldAnswerWithTrue()
+     {
++
++      SupportedModelHandler.main(new String[]{"arg1", "arg2"});
++
+     	DeviceConnectionProviderImpl ins = new DeviceConnectionProviderImpl();
+-    	String hostIp = ""; // target hw IP need to be provided
++      String hostIp = "10.107.200.110"; // target hw IP need to be provided
+     	String command = "uname -a";
+     	String connectionType = "SSH";
+     	long timeOutMilliSecs = 9000;
+@@ -56,6 +60,9 @@ public class DeviceConnectionProviderImplTest
+     	
+     	Device dev = new Device();
+     	dev.setHostIp4Address(hostIp);
++      dev.setHostMacAddress("2C:44:FD:18:F9:FE");
++      dev.setModel("Rpi-RDKB");
++
+     	LOGGER.info("dev HostIpAddress " + dev.getHostIpAddress());
+ 
+     	ret = ins.execute(dev, "df");
+-- 
+2.25.1
+

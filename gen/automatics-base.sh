@@ -14,35 +14,50 @@ if ! lxc image list | grep -q $image_name; then
 fi
 
 ########################################################################################
+#
 lxc delete ${container_name} -f 2>/dev/null
 
+########################################################################################
+#
 lxc launch ${image_name} ${container_name}
 
+########################################################################################
+#
 check_network automatics-base-container
 
 ###################################################################################################################################
-# Misc. packages
-lxc exec ${container_name} -- dnf install -y tar ncurses dnf which procps-ng findutils git strace lsof wget tcpdump
+# alias
+lxc exec ${container_name} -- sh -c 'sed -i '\''#alias c=#d'\'' ~/.bashrc && echo '\''alias c="clear && printf \"\033[3J\033[0m\""'\'' >> ~/.bashrc'
 
 ###################################################################################################################################
-# Java
+# misc. packages
+lxc exec ${container_name} -- dnf install -y tar ncurses dnf which procps-ng findutils git nmap-ncat strace lsof wget tcpdump
+lxc exec ${container_name} -- dnf install -y epel-release
+lxc exec ${container_name} -- dnf install -y tig
+
+# git config
+lxc exec ${container_name} -- git config --global user.name "user"
+lxc exec ${container_name} -- git config --global user.email "user@automatics.com"
+
+###################################################################################################################################
+# java
 lxc exec ${container_name} -- dnf install -y java-17-openjdk java-17-openjdk-devel
 
 ###################################################################################################################################
-# Maven
-lxc exec ${container_name} -- wget -c https://dlcdn.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz -P /root
-lxc exec ${container_name} -- tar xaf /root/apache-maven-3.9.9-bin.tar.gz -C /opt
-lxc exec ${container_name} -- bash -c 'echo "export PATH=\$PATH:/opt/apache-maven-3.9.9/bin" > /etc/profile.d/maven.sh'
+# maven
+lxc exec ${container_name} -- wget -c https://dlcdn.apache.org/maven/maven-3/3.9.10/binaries/apache-maven-3.9.10-bin.tar.gz -P /root
+lxc exec ${container_name} -- tar xaf /root/apache-maven-3.9.10-bin.tar.gz -C /opt
+lxc exec ${container_name} -- bash -c 'echo "export PATH=\$PATH:/opt/apache-maven-3.9.10/bin" > /etc/profile.d/maven.sh'
 lxc exec ${container_name} -- chmod +x /etc/profile.d/maven.sh
 
 ###################################################################################################################################
-# MariaDB
+# mariaDB
 lxc exec ${container_name} -- dnf install -y mariadb-server mariadb
 lxc exec ${container_name} -- systemctl start mariadb
 lxc exec ${container_name} -- systemctl enable mariadb
 
 ###################################################################################################################################
-# Tomcat
+# tomcat
 lxc exec ${container_name} -- bash -c '
 tomcat_version="9.0.102"
 tomcat_filename="apache-tomcat-${tomcat_version}.tar.gz"
@@ -52,7 +67,7 @@ mkdir -p /opt/automatics/
 tar -xf "/root/$tomcat_filename" -C /opt/automatics/
 '
 
-# Run Tomcat as a systemd service
+# Run tomcat as a systemd service
 
 lxc exec ${container_name} -- bash -c 'cat <<EOF > /etc/systemd/system/tomcat.service
 [Unit]
@@ -75,7 +90,7 @@ lxc exec ${container_name} -- systemctl enable tomcat
 #### lxc exec ${container_name} -- systemctl start tomcat
 
 ###################################################################################################################################
-# Publish the image
+# publish the image
 lxc stop ${container_name}
 
 lxc image delete automatics-base 2> /dev/null
